@@ -4,7 +4,7 @@ services:
   web:
     image: nginx:1.13.0
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
       - ./nginx/bc.conf:/etc/nginx/conf.d/bc.conf
       - ../src:/var/www
