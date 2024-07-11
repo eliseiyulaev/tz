@@ -6,6 +6,8 @@ use yii\data\ActiveDataProvider;
 
 class RequestSearch extends Request
 {
+    //public $manager_id;
+
     public function rules()
     {
         return [
@@ -27,6 +29,11 @@ class RequestSearch extends Request
         ]);
 
         $this->load($params);
+        
+
+        if (isset($params['RequestSearch']['manager_id'])) {
+            $this->manager_id = $params['RequestSearch']['manager_id'];
+        }
 
         if (!$this->validate()) {
             $query->where('0=1');
@@ -43,7 +50,7 @@ class RequestSearch extends Request
 
         $query->andFilterWhere(['like', 'email', $this->email])
             ->andFilterWhere(['like', 'phone', $this->phone]);
-
+        
         return $dataProvider;
     }
 }
