@@ -4,6 +4,7 @@ namespace app\models;
 
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
+//use yii\debug;
 
 /**
  * @property int $id
@@ -56,6 +57,20 @@ class Request extends \yii\db\ActiveRecord
             'manager_id' => 'Ответственный менеджер',
             'text' => 'Текст заявки',
         ];
+    }
+
+    // Поиск предыдущей заявки  
+    public function findDuplicate()
+    {
+        $thirtyDaysAgo = (new \DateTime($this->created_at))->modify('-30 days')->format('Y-m-d H:i:s');
+        $query = self::find()
+            ->where(['or', ['email' => $this->email], ['phone' => $this->phone]])// совпадает email или телефон
+            ->andWhere(['<', 'created_at', $this->created_at])// дата создания меньше текущей
+            ->andWhere(['>', 'created_at', $thirtyDaysAgo])// дата создания больше 30 дней назад
+            ->orderBy(['created_at' => SORT_DESC]);// сортировка по дате создания в порядке убывания
+            
+
+            return $query->one();// Возвращаем последнюю добавленную заявку
     }
 
     public function getManager()
