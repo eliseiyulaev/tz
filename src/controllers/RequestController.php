@@ -33,18 +33,8 @@ class RequestController extends Controller
     {
         $model = new Request();
 
-        if ($model->load(Yii::$app->request->post())) {
-
-            $dup = $model->findDuplicate();
-            if ($dup) {
-                $model->duplicate_id = $dup->id;
-            }
-            if(!Manager::findOne($model->manager_id)){// проверка, установлен ли менеджер в ручную
-                $model->assignManager();
-            }
-            if ($model->save()) {
-                return $this->redirect(['view', 'id' => $model->id]);
-            }
+        if($model->load(Yii::$app->request->post()) && $model->save()){
+            return $this->redirect(['view', 'id' => $model->id]);
         }
 
         return $this->render('create', [

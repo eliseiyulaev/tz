@@ -28,7 +28,10 @@ class Request extends \yii\db\ActiveRecord
         return [
             [
                 'class' => TimestampBehavior::class,
-                'value' => new Expression('CONVERT_TZ(NOW(), @@session.time_zone, "+03:00")'),
+                'value' => function() {
+                    $dateTime = new \DateTime('now', new \DateTimeZone('+03:00'));
+                    return $dateTime->format('Y-m-d H:i:s');
+                },
             ]
         ];
     }
@@ -62,11 +65,10 @@ class Request extends \yii\db\ActiveRecord
      
     public function findDuplicate()
     {
-        $timeNow = (new \DateTime());
-        $thirtyDaysAgo = (clone $timeNow)->modify('-30 days');
+        $thirtyDaysAgo = (new \DateTime($this->created_at))->modify('-30 days');
         $query = self::find()
             ->where(['or', ['email' => $this->email], ['phone' => $this->phone]])
-            ->andWhere(['<', 'created_at', $timeNow->format('Y-m-d H:i:s')])
+            ->andWhere(['<', 'created_at', $this->created_at])
             ->andWhere(['>', 'created_at', $thirtyDaysAgo->format('Y-m-d H:i:s')])
             ->orderBy(['created_at' => SORT_DESC]);
 
@@ -89,5 +91,22 @@ class Request extends \yii\db\ActiveRecord
                 $this->manager_id = $managerWithMinRequests->id;
             }
         }
+    }
+
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            if ($this->isNewRecord) {
+                $duplicate = $this->findDuplicate();
+                if ($duplicate) {
+                $this->duplicate_id = $duplicate->id;
+            }
+            if(!Manager::findOne($this->manager_id)){// проверка, установлен ли менеджер в ручную
+                $this->assignManager();
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }
