@@ -107,7 +107,11 @@ class Request extends \yii\db\ActiveRecord
     {
         if (parent::beforeSave($insert)) {
             if ($this->isNewRecord) {
-                $this->assignManager();
+                //Yii::info('Менеджер для новой заявки:' . $this->manager_id, __METHOD__);
+
+                if(!Manager::findOne($this->manager_id)){// проверка установлен ли менеджер явно
+                    $this->assignManager();
+                }
             }
             return true;
         }
