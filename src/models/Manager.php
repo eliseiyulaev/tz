@@ -24,7 +24,7 @@ class Manager extends \yii\db\ActiveRecord
         return [
             [
                 'class' => TimestampBehavior::class,
-                'value' => new Expression('NOW()'),
+                'value' => new Expression('CONVERT_TZ(NOW(), @@session.time_zone, "+03:00")'),
             ]
         ];
     }

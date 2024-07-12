@@ -30,7 +30,7 @@ class Request extends \yii\db\ActiveRecord
         return [
             [
                 'class' => TimestampBehavior::class,
-                'value' => new Expression('NOW()'),
+                'value' => new Expression('CONVERT_TZ(NOW(), @@session.time_zone, "+03:00")'),
             ]
         ];
     }
@@ -59,20 +59,10 @@ class Request extends \yii\db\ActiveRecord
             'text' => 'Текст заявки',
         ];
     }
-
-    private function isDateTime($date) // функция для проверки соответсвия строки формату DataTime
-    {
-        $d = \DateTime::createFromFormat('Y-m-d H:i:s', $date);
-        return $d && $d->format('Y-m-d H:i:s') === $date;
-    }
-        
+     
     // Поиск предыдущей заявки  
     public function findDuplicate()
     {
-        if (!$this->isDateTime($this->created_at)) {
-            $this->created_at = (new \DateTime())->format('Y-m-d H:i:s');
-        }
-
         //Yii::info('Дата создания заявки: ' . $this->created_at, __METHOD__);
 
         $thirtyDaysAgo = (new \DateTime($this->created_at))->modify('-30 days')->format('Y-m-d H:i:s');
@@ -110,6 +100,7 @@ class Request extends \yii\db\ActiveRecord
                 //Yii::info('Менеджер для новой заявки:' . $this->manager_id, __METHOD__);
 
                 if(!Manager::findOne($this->manager_id)){// проверка установлен ли менеджер явно
+                    $this->created_at = (new \DateTime())->format('Y-m-d H:i:s');// установка даты создания заявки для последующей обработки
                     $this->assignManager();
                 }
             }
