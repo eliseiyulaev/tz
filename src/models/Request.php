@@ -62,12 +62,12 @@ class Request extends \yii\db\ActiveRecord
      
     public function findDuplicate()
     {
-        $timeNow = (new \DateTime())->format('Y-m-d H:i:s');
-        $thirtyDaysAgo = (new \DateTime($timeNow))->modify('-30 days')->format('Y-m-d H:i:s');
+        $timeNow = (new \DateTime());
+        $thirtyDaysAgo = (clone $timeNow)->modify('-30 days');
         $query = self::find()
             ->where(['or', ['email' => $this->email], ['phone' => $this->phone]])
-            ->andWhere(['<', 'created_at', $timeNow])
-            ->andWhere(['>', 'created_at', $thirtyDaysAgo])
+            ->andWhere(['<', 'created_at', $timeNow->format('Y-m-d H:i:s')])
+            ->andWhere(['>', 'created_at', $thirtyDaysAgo->format('Y-m-d H:i:s')])
             ->orderBy(['created_at' => SORT_DESC]);
 
         return $query->one();

@@ -30,7 +30,6 @@ $this->params['breadcrumbs'][] = $this->title;
             'created_at:datetime',
             'email:email',
             'phone',
-            'duplicate_id',
             [
                 'attribute' => 'manager_id',
                 'filter' => Manager::getList(),
