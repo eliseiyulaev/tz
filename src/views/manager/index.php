@@ -30,21 +30,18 @@ $this->params['breadcrumbs'][] = $this->title;
             'updated_at:datetime',
             'name',
             'is_works:boolean',
-// Кнопка для просмотра заявок
             [
                 'class' => yii\grid\ActionColumn::class,
-                'template' => '{requests}',// по умолчанию идем в index
-                //'header' => 'Заявки',
+                'template' => '{requests}',
                 'buttons' => [
                     'requests' => function ($url, $model, $key) {
                         return Html::a('Заявки', ['request/index', 'RequestSearch[manager_id]' => $model->id], [
                             'class' => 'btn btn-success',
-                        ]);// используем RequestSearch[manager_id] для передачи manager_id в GET и автоматом в параметр manager_id в RequestSearch
+                        ]);
                     },
                 ],
                 'contentOptions' => ['style' => 'width:1px'],
             ],
-// Кнопка для просмотра заявок
             [
                 'class' => yii\grid\ActionColumn::class,
                 'template' => '{view}',

@@ -28,9 +28,9 @@ $this->params['breadcrumbs'][] = $this->title;
 
             'id',
             'created_at:datetime',
-            //'updated_at:datetime',
             'email:email',
             'phone',
+            'duplicate_id',
             [
                 'attribute' => 'manager_id',
                 'filter' => Manager::getList(),
@@ -38,16 +38,14 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $request->manager ? $request->manager->name : null;
                 }
             ],
-            // Предыдущая заявка
             [
                 'label' => 'Предыдущая заявка',
                 'format' => 'raw',
                 'value' => function ($model) {
-                    $duplicate = $model->findDuplicate();
-                    return $duplicate ? Html::a('№' . $duplicate->id, ['view', 'id' => $duplicate->id]) : '&mdash;';
+                    
+                    return $model->duplicate_id ? Html::a('№' . $model->duplicate_id, ['view', 'id' => $model->duplicate_id]) : '&mdash;';
                 },
             ],
-            // Предыдущая заявка
             [
                 'class' => yii\grid\ActionColumn::class,
                 'template' => '{view}',

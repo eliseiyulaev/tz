@@ -18,11 +18,8 @@ use yii\widgets\ActiveForm;
     <?= $form->field($model, 'phone')->textInput(['maxlength' => true]) ?>
 
     <?php if ($model->isNewRecord): ?>
-        <!-- Поле выбора менеджера только при создании новой заявки -->
         <?= $form->field($model, 'manager_id')->dropDownList(Manager::getList(), ['prompt' => '']) ?>
     <?php endif; ?>
-
-    <!--<?= $form->field($model, 'manager_id')->dropDownList(Manager::getList(), ['prompt' => '']) ?>-->
 
     <?= $form->field($model, 'text')->textarea(['rows' => 10]) ?>
 

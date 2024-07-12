@@ -6,8 +6,6 @@ use yii\data\ActiveDataProvider;
 
 class RequestSearch extends Request
 {
-    //public $manager_id;
-
     public function rules()
     {
         return [

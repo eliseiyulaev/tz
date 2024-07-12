@@ -2,10 +2,8 @@
 
 namespace app\models;
 
-use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
-//use yii\debug;
 
 /**
  * @property int $id
@@ -42,6 +40,8 @@ class Request extends \yii\db\ActiveRecord
             ['email', 'email'],
             ['manager_id', 'integer'],
             ['manager_id', 'exist', 'targetClass' => Manager::class, 'targetAttribute' => 'id'],
+            ['duplicate_id', 'integer'],
+            ['duplicate_id', 'exist', 'targetClass' => self::class, 'targetAttribute' => 'id'],
             [['email', 'phone'], 'string', 'max' => 255],
             ['text', 'safe'],
         ];
@@ -60,19 +60,17 @@ class Request extends \yii\db\ActiveRecord
         ];
     }
      
-    // Поиск предыдущей заявки  
     public function findDuplicate()
     {
-        //Yii::info('Дата создания заявки: ' . $this->created_at, __METHOD__);
-
-        $thirtyDaysAgo = (new \DateTime($this->created_at))->modify('-30 days')->format('Y-m-d H:i:s');
+        $timeNow = (new \DateTime())->format('Y-m-d H:i:s');
+        $thirtyDaysAgo = (new \DateTime($timeNow))->modify('-30 days')->format('Y-m-d H:i:s');
         $query = self::find()
             ->where(['or', ['email' => $this->email], ['phone' => $this->phone]])
-            ->andWhere(['<', 'created_at', $this->created_at])// дата создания меньше текущей
-            ->andWhere(['>', 'created_at', $thirtyDaysAgo])// дата создания больше 30 дней назад
+            ->andWhere(['<', 'created_at', $timeNow])
+            ->andWhere(['>', 'created_at', $thirtyDaysAgo])
             ->orderBy(['created_at' => SORT_DESC]);
-            
-        return $query->one();// Возвращаем последнюю добавленную заявку
+
+        return $query->one();
     }
 
     public function getManager()
@@ -80,32 +78,16 @@ class Request extends \yii\db\ActiveRecord
         return $this->hasOne(Manager::class, ['id' => 'manager_id']);
     }
 
-    public function assignManager()// назначение менеджера на заявку
+    public function assignManager()
     {
-        $duplicate = $this->findDuplicate();
+        $duplicate = self::findOne($this->duplicate_id);
         if ($duplicate && $duplicate->manager && $duplicate->manager->is_works) {
             $this->manager_id = $duplicate->manager_id;
-        } else {// если не дубль или менеджер не работает, то назначаем менеджера с минимальным количеством заявок
+        } else {
             $managerWithMinRequests = Manager::getManagerWithMinRequests();
             if ($managerWithMinRequests !== null) {
                 $this->manager_id = $managerWithMinRequests->id;
             }
         }
-    }
-
-    public function beforeSave($insert)// до сохранения проверяем новая ли заявка и если да, то назначаем менеджера
-    {
-        if (parent::beforeSave($insert)) {
-            if ($this->isNewRecord) {
-                //Yii::info('Менеджер для новой заявки:' . $this->manager_id, __METHOD__);
-
-                if(!Manager::findOne($this->manager_id)){// проверка установлен ли менеджер явно
-                    $this->created_at = (new \DateTime())->format('Y-m-d H:i:s');// установка даты создания заявки для последующей обработки
-                    $this->assignManager();
-                }
-            }
-            return true;
-        }
-        return false;
     }
 }
