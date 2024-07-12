@@ -44,7 +44,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'format' => 'raw',
                 'value' => function ($model) {
                     $duplicate = $model->findDuplicate();
-                    return $duplicate ? Html::a('Заявка #' . $duplicate->id, ['view', 'id' => $duplicate->id]) : 'Нет';
+                    return $duplicate ? Html::a('№' . $duplicate->id, ['view', 'id' => $duplicate->id]) : '&mdash;';
                 },
             ],
             // Предыдущая заявка

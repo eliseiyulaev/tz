@@ -49,6 +49,19 @@ class Manager extends \yii\db\ActiveRecord
         ];
     }
 
+    // Поиск работающего менеджера с минимальным количеством заявок
+    public static function getManagerWithMinRequests(): ?self
+    {
+        return self::find()
+            ->select(['managers.*', 'request_count' => 'COUNT(requests.id)'])
+            ->leftJoin('requests', 'requests.manager_id = managers.id')// объединяем таблицы менеджеры и заявки по id менеджера
+            ->where(['managers.is_works' => true])
+            ->groupBy('managers.id')
+            ->orderBy(['request_count' => SORT_ASC])
+            ->one();
+    }
+    
+
     public static function getList(): array
     {
         return array_column(

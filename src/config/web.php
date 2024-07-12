@@ -28,7 +28,12 @@ $config = [
             'targets' => [
                 [
                     'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning'],
+                    'levels' => ['error', 'warning', 'info'],
+                    'logFile' => '@runtime/logs/app.log',
+                ],
+                [
+                    'class' => 'yii\log\SyslogTarget',
+                    'levels' => ['error', 'warning', 'info'],
                 ],
             ],
         ],
